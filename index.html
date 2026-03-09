@@ -178,6 +178,33 @@
                         <span class="detail-value" id="modalStatus">--</span>
                     </div>
                 </div>
+                
+                <!-- Station Detection Radial Map -->
+                <div class="station-section" id="stationSection">
+                    <div class="station-header">
+                        <h4>Station Detections</h4>
+                        <span class="station-count" id="stationCount">Loading...</span>
+                    </div>
+                    <div class="radial-map-container">
+                        <div class="radial-map" id="radialMap">
+                            <div class="radial-center">
+                                <div class="epicenter-dot"></div>
+                                <span class="epicenter-label">Epicenter</span>
+                            </div>
+                            <div class="radial-rings">
+                                <div class="radial-ring" data-distance="0.5"></div>
+                                <div class="radial-ring" data-distance="1.0"></div>
+                                <div class="radial-ring" data-distance="1.5"></div>
+                            </div>
+                            <div class="stations-container" id="stationsContainer"></div>
+                        </div>
+                        <div class="radial-legend">
+                            <div class="legend-item"><span class="wave-dot p-wave"></span> P-wave</div>
+                            <div class="legend-item"><span class="wave-dot s-wave"></span> S-wave</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="modal-actions">
                     <a id="modalLink" href="#" target="_blank" class="modal-link">View on IGN →</a>
                     <div class="share-section">

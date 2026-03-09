@@ -614,6 +614,9 @@
         elements.modalLink.href = props.url || '#';
 
         elements.detailModal.classList.remove('hidden');
+        
+        // Fetch and display station/phase data
+        fetchPhaseData(quake.id);
     }
 
     // Close modal
@@ -685,6 +688,144 @@
                 map.setView([coords[1], coords[0]], 12);
             }
         }
+    }
+
+    // Fetch and display phase/station data for an earthquake
+    async function fetchPhaseData(eventId) {
+        const stationSection = document.getElementById('stationSection');
+        const stationCount = document.getElementById('stationCount');
+        const stationsContainer = document.getElementById('stationsContainer');
+        
+        if (!stationSection) return;
+        
+        // Reset state
+        stationSection.classList.add('loading');
+        stationSection.classList.remove('error');
+        stationCount.textContent = 'Loading...';
+        stationsContainer.innerHTML = '';
+        
+        // Extract year from event ID (format: es2026xxxxx)
+        const yearMatch = eventId.match(/es(\d{4})/);
+        if (!yearMatch) {
+            showStationError('No phase data available');
+            return;
+        }
+        
+        const year = yearMatch[1];
+        const phaseUrl = `https://www.ign.es/web/resources/sismologia/www/dir_images_terremotos/fases/${year}/${eventId}.dat`;
+        
+        try {
+            const response = await fetch(phaseUrl);
+            if (!response.ok) {
+                showStationError('No phase data available');
+                return;
+            }
+            
+            const text = await response.text();
+            const stations = parsePhaseData(text);
+            
+            if (stations.length === 0) {
+                showStationError('No station data found');
+                return;
+            }
+            
+            renderRadialMap(stations);
+            stationCount.textContent = `${stations.length} stations`;
+            stationSection.classList.remove('loading');
+            
+        } catch (error) {
+            console.error('Error fetching phase data:', error);
+            showStationError('Failed to load phase data');
+        }
+    }
+    
+    // Show error state for station section
+    function showStationError(message) {
+        const stationSection = document.getElementById('stationSection');
+        const stationCount = document.getElementById('stationCount');
+        
+        stationSection.classList.remove('loading');
+        stationSection.classList.add('error');
+        stationCount.textContent = message;
+    }
+    
+    // Parse IGN phase data format
+    function parsePhaseData(text) {
+        const lines = text.split('\n');
+        const stations = new Map();
+        
+        for (const line of lines) {
+            // Match station data lines (start with station code, have distance and azimuth)
+            // Format: Sta     Dist  EvAz Phase        Time      TRes ...
+            const match = line.match(/^([A-Z]{3,4})\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(P|S|IVmb_Lg)\s+/);
+            
+            if (match) {
+                const [, stationCode, distance, azimuth, phase] = match;
+                const dist = parseFloat(distance);
+                const az = parseFloat(azimuth);
+                
+                if (!stations.has(stationCode)) {
+                    stations.set(stationCode, {
+                        code: stationCode,
+                        distance: dist,
+                        azimuth: az,
+                        hasP: false,
+                        hasS: false
+                    });
+                }
+                
+                const station = stations.get(stationCode);
+                if (phase === 'P') station.hasP = true;
+                if (phase === 'S') station.hasS = true;
+            }
+        }
+        
+        return Array.from(stations.values());
+    }
+    
+    // Render stations on the radial map
+    function renderRadialMap(stations) {
+        const container = document.getElementById('stationsContainer');
+        if (!container) return;
+        
+        // Find min and max distance for better scaling
+        const distances = stations.map(s => s.distance);
+        const minDist = Math.min(...distances);
+        const maxDist = Math.max(...distances);
+        const mapRadius = 110; // Half of 220px map width
+        const centerOffset = 110; // Center point
+        
+        // Use a minimum inner radius so stations don't cluster at center
+        const innerRadius = 0.25; // 25% minimum from center
+        const outerRadius = 0.90; // 90% maximum
+        
+        container.innerHTML = stations.map(station => {
+            // Convert polar to cartesian coordinates
+            // Azimuth: 0° = North, 90° = East, etc.
+            const angleRad = (station.azimuth - 90) * (Math.PI / 180);
+            
+            // Scale distance to spread stations between inner and outer radius
+            const range = maxDist - minDist || 1;
+            const normalizedDist = innerRadius + ((station.distance - minDist) / range) * (outerRadius - innerRadius);
+            
+            const x = centerOffset + (normalizedDist * mapRadius * Math.cos(angleRad));
+            const y = centerOffset + (normalizedDist * mapRadius * Math.sin(angleRad));
+            
+            // Determine wave type class
+            let waveClass = 'p-wave';
+            if (station.hasP && station.hasS) {
+                waveClass = 'both-waves';
+            } else if (station.hasS) {
+                waveClass = 's-wave';
+            }
+            
+            return `
+                <div class="station-dot" style="left: ${x}px; top: ${y}px;" title="${station.code}: ${station.distance.toFixed(2)}° @ ${station.azimuth.toFixed(1)}°">
+                    <div class="station-marker ${waveClass}"></div>
+                    <span class="station-label">${station.code}</span>
+                </div>
+            `;
+        }).join('');
     }
 
     // Format location string
