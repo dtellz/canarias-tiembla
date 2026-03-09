@@ -50,11 +50,11 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    overflow: hidden;
 }
 
 /* Header */
 .header {
+    flex-shrink: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -194,6 +194,7 @@ body {
     display: flex;
     flex: 1;
     overflow: hidden;
+    min-height: 0;
 }
 
 /* Map Container */
@@ -883,4 +884,41 @@ body {
     .sidebar {
         height: 60%;
     }
+}
+
+/* Footer */
+.site-footer {
+    flex-shrink: 0;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 10px 20px;
+    text-align: center;
+    z-index: 50;
+    position: relative;
+}
+
+.footer-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.attribution {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.attribution a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.attribution a:hover {
+    text-decoration: underline;
+}
+
+.disclaimer {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    line-height: 1.4;
 }
