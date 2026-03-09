@@ -127,6 +127,32 @@
                 magnitudeLegend.classList.toggle('collapsed');
             });
         }
+
+        // Share button toggle
+        const shareBtn = document.getElementById('shareBtn');
+        const shareDropdown = document.getElementById('shareDropdown');
+        if (shareBtn && shareDropdown) {
+            shareBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                shareDropdown.classList.toggle('hidden');
+            });
+
+            // Share options
+            shareDropdown.querySelectorAll('.share-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleShare(option.dataset.share);
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', () => {
+                shareDropdown.classList.add('hidden');
+            });
+        }
+
+        // Handle URL hash changes
+        window.addEventListener('hashchange', openQuakeFromHash);
     }
 
     // Fetch earthquake data from IGN Spain Canary Islands page
@@ -152,6 +178,9 @@
             
             updateUI();
             updateLastUpdateTime();
+            
+            // Check for earthquake in URL hash after data loads
+            openQuakeFromHash();
         } catch (error) {
             console.error('Error fetching earthquake data:', error);
             showError();
@@ -557,13 +586,22 @@
         document.querySelector('.chart-bars').innerHTML = chartHtml;
     }
 
+    // Current earthquake for sharing
+    let currentQuakeId = null;
+
     // Show earthquake detail modal
     function showQuakeDetail(quake) {
         const props = quake.properties;
         const coords = quake.geometry.coordinates;
         const magnitude = props.mag || 0;
-        const depth = coords[2] || 0;
+        const depth = props.depth || coords[2] || 0;
         const color = getMagnitudeColor(magnitude);
+
+        // Store current quake ID for sharing
+        currentQuakeId = quake.id;
+        
+        // Update URL hash
+        window.location.hash = `quake-${quake.id}`;
 
         elements.modalMagnitude.textContent = magnitude.toFixed(1);
         elements.modalMagnitude.style.background = color;
@@ -581,6 +619,72 @@
     // Close modal
     function closeModal() {
         elements.detailModal.classList.add('hidden');
+        currentQuakeId = null;
+        // Remove hash from URL
+        history.pushState('', document.title, window.location.pathname + window.location.search);
+    }
+
+    // Get shareable URL for current earthquake
+    function getShareUrl() {
+        return `${window.location.origin}${window.location.pathname}#quake-${currentQuakeId}`;
+    }
+
+    // Get share text for current earthquake
+    function getShareText() {
+        const mag = elements.modalMagnitude.textContent;
+        const location = elements.modalTitle.textContent;
+        return `M${mag} earthquake detected near ${location} - Canary Islands Earthquake Monitor`;
+    }
+
+    // Handle share actions
+    function handleShare(type) {
+        const url = getShareUrl();
+        const text = getShareText();
+
+        switch (type) {
+            case 'copy':
+                navigator.clipboard.writeText(url).then(() => {
+                    const copyBtn = document.querySelector('[data-share="copy"]');
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+                    copyBtn.classList.add('copy-success');
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                        copyBtn.classList.remove('copy-success');
+                    }, 2000);
+                });
+                break;
+            case 'twitter':
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+                break;
+            case 'facebook':
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                break;
+            case 'whatsapp':
+                window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+                break;
+            case 'linkedin':
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+                break;
+        }
+
+        // Close dropdown after action
+        document.getElementById('shareDropdown').classList.add('hidden');
+    }
+
+    // Open earthquake from URL hash
+    function openQuakeFromHash() {
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#quake-')) {
+            const quakeId = hash.replace('#quake-', '');
+            const quake = earthquakeData.find(q => q.id === quakeId);
+            if (quake) {
+                showQuakeDetail(quake);
+                // Center map on earthquake
+                const coords = quake.geometry.coordinates;
+                map.setView([coords[1], coords[0]], 12);
+            }
+        }
     }
 
     // Format location string

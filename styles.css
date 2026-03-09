@@ -813,6 +813,102 @@ body {
     background: var(--accent-secondary);
 }
 
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.share-section {
+    position: relative;
+}
+
+.share-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.share-btn:hover {
+    background: var(--bg-card);
+    border-color: var(--accent-primary);
+}
+
+.share-dropdown {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    margin-bottom: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+}
+
+.share-dropdown.hidden {
+    display: none;
+}
+
+.share-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+}
+
+.share-option:hover {
+    background: var(--bg-tertiary);
+}
+
+.share-option svg {
+    flex-shrink: 0;
+}
+
+.share-option[data-share="copy"]:hover {
+    color: var(--accent-primary);
+}
+
+.share-option[data-share="twitter"]:hover {
+    color: #1DA1F2;
+}
+
+.share-option[data-share="facebook"]:hover {
+    color: #1877F2;
+}
+
+.share-option[data-share="whatsapp"]:hover {
+    color: #25D366;
+}
+
+.share-option[data-share="linkedin"]:hover {
+    color: #0A66C2;
+}
+
+.copy-success {
+    color: var(--success) !important;
+}
+
 /* Custom Earthquake Marker */
 .earthquake-marker {
     position: relative;
