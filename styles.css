@@ -702,11 +702,20 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 24px;
+    padding: 20px;
     width: 90%;
     max-width: 400px;
+    max-height: 85vh;
     box-shadow: var(--shadow-lg);
     animation: scale-in 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 12px;
 }
 
 @keyframes scale-in {
