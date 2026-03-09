@@ -1,23 +1,24 @@
 // Canary Islands Earthquake Monitor
 // Client-side only - No server required
+// Data source: Instituto Geográfico Nacional (IGN) Spain
 
 (function() {
     'use strict';
 
     // Configuration
     const CONFIG = {
-        // Canary Islands bounding box (with some padding)
+        // Canary Islands bounding box (with padding for offshore events)
         bounds: {
-            minLat: 27.5,
+            minLat: 27.0,
             maxLat: 29.5,
-            minLon: -18.5,
-            maxLon: -13.3
+            minLon: -19.0,
+            maxLon: -13.0
         },
         // Map center (approximately center of Canary Islands)
         center: [28.3, -15.8],
         defaultZoom: 8,
-        // USGS API endpoint
-        usgsApi: 'https://earthquake.usgs.gov/fdsnws/event/1/query',
+        // IGN Spain GeoRSS feed (last 10 days of earthquakes)
+        ignApi: 'https://www.ign.es/ign/RssTools/sismologia.xml',
         // Refresh interval (2 minutes)
         refreshInterval: 120000,
         // Default time range in days
@@ -114,34 +115,36 @@
         });
     }
 
-    // Fetch earthquake data from USGS API
+    // Fetch earthquake data from IGN Spain GeoRSS feed
     async function fetchEarthquakeData() {
         showLoading();
 
-        const endTime = new Date().toISOString();
-        const startTime = new Date(Date.now() - currentDays * 24 * 60 * 60 * 1000).toISOString();
-
-        const params = new URLSearchParams({
-            format: 'geojson',
-            starttime: startTime,
-            endtime: endTime,
-            minlatitude: CONFIG.bounds.minLat,
-            maxlatitude: CONFIG.bounds.maxLat,
-            minlongitude: CONFIG.bounds.minLon,
-            maxlongitude: CONFIG.bounds.maxLon,
-            orderby: 'time',
-            limit: 500
-        });
-
         try {
-            const response = await fetch(`${CONFIG.usgsApi}?${params}`);
+            const response = await fetch(CONFIG.ignApi);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const data = await response.json();
-            earthquakeData = data.features || [];
+            const xmlText = await response.text();
+            const allQuakes = parseIGNGeoRSS(xmlText);
+            
+            // Filter for Canary Islands region
+            const canaryQuakes = allQuakes.filter(quake => {
+                const lat = quake.geometry.coordinates[1];
+                const lon = quake.geometry.coordinates[0];
+                return lat >= CONFIG.bounds.minLat && 
+                       lat <= CONFIG.bounds.maxLat && 
+                       lon >= CONFIG.bounds.minLon && 
+                       lon <= CONFIG.bounds.maxLon;
+            });
+
+            // Filter by time range
+            const cutoffTime = Date.now() - currentDays * 24 * 60 * 60 * 1000;
+            earthquakeData = canaryQuakes.filter(quake => quake.properties.time >= cutoffTime);
+            
+            // Sort by time (newest first)
+            earthquakeData.sort((a, b) => b.properties.time - a.properties.time);
             
             updateUI();
             updateLastUpdateTime();
@@ -149,6 +152,114 @@
             console.error('Error fetching earthquake data:', error);
             showError();
         }
+    }
+
+    // Parse IGN GeoRSS XML to GeoJSON-like format
+    function parseIGNGeoRSS(xmlText) {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, 'text/xml');
+        const items = xml.querySelectorAll('item');
+        const earthquakes = [];
+
+        items.forEach(item => {
+            try {
+                const title = item.querySelector('title')?.textContent || '';
+                const description = item.querySelector('description')?.textContent || '';
+                const link = item.querySelector('link')?.textContent || '';
+                const guid = item.querySelector('guid')?.textContent || '';
+                
+                // Get coordinates from geo:lat and geo:long (handle namespace)
+                const geoNS = 'http://www.w3.org/2003/01/geo/wgs84_pos#';
+                const latEl = item.getElementsByTagNameNS(geoNS, 'lat')[0];
+                const lonEl = item.getElementsByTagNameNS(geoNS, 'long')[0];
+                const lat = parseFloat(latEl?.textContent || '0');
+                const lon = parseFloat(lonEl?.textContent || '0');
+                
+                // Skip if no valid coordinates
+                if (lat === 0 && lon === 0) return;
+
+                // Parse magnitude from description
+                // Format: "Se ha producido un terremoto de magnitud X.X en LOCATION..."
+                const magMatch = description.match(/magnitud\s+([\d.]+)/i);
+                const magnitude = magMatch ? parseFloat(magMatch[1]) : 0;
+
+                // Parse date from title
+                // Format: "-Info.terremoto: DD/MM/YYYY HH:MM:SS"
+                const dateMatch = title.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})/);
+                let timestamp = Date.now();
+                if (dateMatch) {
+                    const [, day, month, year, hour, minute, second] = dateMatch;
+                    timestamp = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}Z`).getTime();
+                }
+
+                // Parse location from description
+                // Format: "...en LOCATION en la fecha..."
+                const locMatch = description.match(/magnitud\s+[\d.]+\s+en\s+([^\s]+(?:\.[A-Z]+)?)/i);
+                const location = locMatch ? formatIGNLocation(locMatch[1]) : 'Canary Islands';
+
+                // Extract event ID from guid
+                const eventId = guid.match(/evid=([^&]+)/)?.[1] || '';
+
+                earthquakes.push({
+                    type: 'Feature',
+                    id: eventId,
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [lon, lat, 10] // Default depth 10km (IGN RSS doesn't include depth)
+                    },
+                    properties: {
+                        mag: magnitude,
+                        place: location,
+                        time: timestamp,
+                        url: link,
+                        status: 'reviewed',
+                        title: `M ${magnitude.toFixed(1)} - ${location}`
+                    }
+                });
+            } catch (e) {
+                console.warn('Error parsing earthquake item:', e);
+            }
+        });
+
+        return earthquakes;
+    }
+
+    // Format IGN location codes to readable names
+    function formatIGNLocation(code) {
+        // Common Canary Islands location mappings
+        const locationMap = {
+            'ATLÁNTICO-CANARIAS': 'Atlantic Ocean - Canary Islands',
+            'ATLANTICO-CANARIAS': 'Atlantic Ocean - Canary Islands',
+            'TENERIFE': 'Tenerife',
+            'GRAN CANARIA': 'Gran Canaria',
+            'LANZAROTE': 'Lanzarote',
+            'FUERTEVENTURA': 'Fuerteventura',
+            'LA PALMA': 'La Palma',
+            'LA GOMERA': 'La Gomera',
+            'EL HIERRO': 'El Hierro'
+        };
+
+        const upperCode = code.toUpperCase();
+        
+        // Check for exact match
+        if (locationMap[upperCode]) {
+            return locationMap[upperCode];
+        }
+
+        // Check for partial matches
+        for (const [key, value] of Object.entries(locationMap)) {
+            if (upperCode.includes(key) || key.includes(upperCode)) {
+                return value;
+            }
+        }
+
+        // Clean up the code for display
+        return code
+            .replace(/\.[A-Z]+$/, '') // Remove suffix like .TF
+            .replace(/_/g, ' ')
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
     }
 
     // Update all UI components
