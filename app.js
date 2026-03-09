@@ -586,7 +586,7 @@
     // Format location string
     function formatLocation(place) {
         if (!place) return 'Canary Islands Region';
-        // Clean up USGS location format
+        // Clean up IGN location format
         return place.replace(/^\d+\s*km\s+\w+\s+of\s+/i, '').trim() || place;
     }
 

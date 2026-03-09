@@ -1,10 +1,10 @@
 # Canary Islands Earthquake Monitor
 
-A visually stunning, real-time earthquake monitoring dashboard for the Canary Islands. This application displays live seismic data from the USGS Earthquake API with beautiful visualizations and interactive features.
+A visually stunning, real-time earthquake monitoring dashboard for the Canary Islands. This application displays live seismic data from the Instituto Geográfico Nacional (IGN) Spain with beautiful visualizations and interactive features.
 
 ## Features
 
-- **Live Data**: Fetches real-time earthquake data from USGS API every 2 minutes
+- **Live Data**: Fetches real-time earthquake data from IGN Spain every 2 minutes
 - **Interactive Map**: Dark-themed map focused on the Canary Islands with animated earthquake markers
 - **Magnitude Visualization**: Color-coded markers and size scaling based on earthquake magnitude
 - **Statistics Dashboard**: Total events, max magnitude, average depth, and recent activity
