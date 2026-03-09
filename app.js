@@ -498,7 +498,7 @@
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 6v6l4 2"/>
                     </svg>
-                    <span class="empty-text">No earthquakes detected in this time period</span>
+                    <span class="empty-text">No se detectaron terremotos en este período</span>
                 </div>
             `;
             return;
@@ -636,7 +636,7 @@
     function getShareText() {
         const mag = elements.modalMagnitude.textContent;
         const location = elements.modalTitle.textContent;
-        return `M${mag} earthquake detected near ${location} - Canary Islands Earthquake Monitor`;
+        return `Terremoto M${mag} detectado cerca de ${location} - Monitor Sísmico de Canarias`;
     }
 
     // Handle share actions
@@ -649,7 +649,7 @@
                 navigator.clipboard.writeText(url).then(() => {
                     const copyBtn = document.querySelector('[data-share="copy"]');
                     const originalText = copyBtn.innerHTML;
-                    copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+                    copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> ¡Copiado!`;
                     copyBtn.classList.add('copy-success');
                     setTimeout(() => {
                         copyBtn.innerHTML = originalText;
@@ -707,7 +707,7 @@
         // Extract year from event ID (format: es2026xxxxx)
         const yearMatch = eventId.match(/es(\d{4})/);
         if (!yearMatch) {
-            showStationError('No phase data available');
+            showStationError('Sin datos de fase');
             return;
         }
         
@@ -717,7 +717,7 @@
         try {
             const response = await fetch(phaseUrl);
             if (!response.ok) {
-                showStationError('No phase data available');
+                showStationError('Sin datos de fase');
                 return;
             }
             
@@ -725,17 +725,17 @@
             const stations = parsePhaseData(text);
             
             if (stations.length === 0) {
-                showStationError('No station data found');
+                showStationError('Sin datos de estaciones');
                 return;
             }
             
             renderRadialMap(stations);
-            stationCount.textContent = `${stations.length} stations`;
+            stationCount.textContent = `${stations.length} estaciones`;
             stationSection.classList.remove('loading');
             
         } catch (error) {
             console.error('Error fetching phase data:', error);
-            showStationError('Failed to load phase data');
+            showStationError('Error al cargar datos');
         }
     }
     
@@ -830,7 +830,7 @@
 
     // Format location string
     function formatLocation(place) {
-        if (!place) return 'Canary Islands Region';
+        if (!place) return 'Región de Canarias';
         // Clean up IGN location format
         return place.replace(/^\d+\s*km\s+\w+\s+of\s+/i, '').trim() || place;
     }
@@ -838,7 +838,7 @@
     // Format timestamp
     function formatTime(timestamp) {
         const date = new Date(timestamp);
-        return date.toLocaleString('en-GB', {
+        return date.toLocaleString('es-ES', {
             day: '2-digit',
             month: 'short',
             year: 'numeric',
@@ -853,17 +853,17 @@
     function formatTimeAgo(timestamp) {
         const seconds = Math.floor((Date.now() - timestamp) / 1000);
         
-        if (seconds < 60) return 'Just now';
-        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-        if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+        if (seconds < 60) return 'Ahora';
+        if (seconds < 3600) return `hace ${Math.floor(seconds / 60)}m`;
+        if (seconds < 86400) return `hace ${Math.floor(seconds / 3600)}h`;
+        if (seconds < 604800) return `hace ${Math.floor(seconds / 86400)}d`;
         return formatTime(timestamp);
     }
 
     // Update last update time
     function updateLastUpdateTime() {
         const now = new Date();
-        elements.lastUpdate.textContent = now.toLocaleTimeString('en-GB', {
+        elements.lastUpdate.textContent = now.toLocaleTimeString('es-ES', {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
@@ -876,7 +876,7 @@
         elements.earthquakeList.innerHTML = `
             <div class="loading-state">
                 <div class="spinner"></div>
-                <span>Loading earthquake data...</span>
+                <span>Cargando datos sísmicos...</span>
             </div>
         `;
     }
@@ -889,7 +889,7 @@
                     <circle cx="12" cy="12" r="10"/>
                     <path d="M12 8v4M12 16h.01"/>
                 </svg>
-                <span class="empty-text">Failed to load earthquake data. Will retry automatically.</span>
+                <span class="empty-text">Error al cargar datos. Reintentando automáticamente.</span>
             </div>
         `;
     }

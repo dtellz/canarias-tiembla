@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canary Islands Earthquake Monitor</title>
-    <meta name="description" content="Real-time earthquake monitoring dashboard for the Canary Islands. Live seismic data from IGN Spain with interactive map and visualizations.">
+    <title>Monitor Sísmico de Canarias</title>
+    <meta name="description" content="Panel de monitorización sísmica en tiempo real para las Islas Canarias. Datos sísmicos en vivo del IGN España con mapa interactivo y visualizaciones.">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://dtellz.github.io/canarias-tiembla/">
-    <meta property="og:title" content="Canary Islands Earthquake Monitor">
-    <meta property="og:description" content="Real-time earthquake monitoring dashboard for the Canary Islands. Live seismic data from IGN Spain with interactive map and visualizations.">
+    <meta property="og:title" content="Monitor Sísmico de Canarias">
+    <meta property="og:description" content="Panel de monitorización sísmica en tiempo real para las Islas Canarias. Datos sísmicos en vivo del IGN España con mapa interactivo y visualizaciones.">
     <meta property="og:image" content="https://dtellz.github.io/canarias-tiembla/og.jpg">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://dtellz.github.io/canarias-tiembla/">
-    <meta name="twitter:title" content="Canary Islands Earthquake Monitor">
-    <meta name="twitter:description" content="Real-time earthquake monitoring dashboard for the Canary Islands. Live seismic data from IGN Spain with interactive map and visualizations.">
+    <meta name="twitter:title" content="Monitor Sísmico de Canarias">
+    <meta name="twitter:description" content="Panel de monitorización sísmica en tiempo real para las Islas Canarias. Datos sísmicos en vivo del IGN España con mapa interactivo y visualizaciones.">
     <meta name="twitter:image" content="https://dtellz.github.io/canarias-tiembla/og.jpg">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -38,17 +38,17 @@
                     </svg>
                 </div>
                 <div class="title-group">
-                    <h1>Canary Islands</h1>
-                    <span class="subtitle">Earthquake Monitor</span>
+                    <h1>Islas Canarias</h1>
+                    <span class="subtitle">Monitor Sísmico</span>
                 </div>
             </div>
             <div class="header-right">
                 <div class="status-indicator">
                     <span class="status-dot live"></span>
-                    <span class="status-text">LIVE</span>
+                    <span class="status-text">EN VIVO</span>
                 </div>
                 <div class="last-update">
-                    <span class="update-label">Last update:</span>
+                    <span class="update-label">Última actualización:</span>
                     <span id="lastUpdate" class="update-time">--:--:--</span>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                 <div class="map-overlay top-left">
                     <div class="legend collapsed" id="magnitudeLegend">
                         <div class="legend-header" id="legendToggle">
-                            <h3>Magnitude</h3>
+                            <h3>Magnitud</h3>
                             <button class="legend-toggle" aria-label="Toggle legend">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="18 15 12 9 6 15"></polyline>
@@ -96,8 +96,8 @@
                 <div class="map-overlay bottom-right">
                     <div class="time-filter">
                         <button class="filter-btn active" data-days="1">24h</button>
-                        <button class="filter-btn" data-days="3">3 days</button>
-                        <button class="filter-btn" data-days="10">10 days</button>
+                        <button class="filter-btn" data-days="3">3 días</button>
+                        <button class="filter-btn" data-days="10">10 días</button>
                     </div>
                 </div>
             </div>
@@ -106,41 +106,41 @@
             <aside class="sidebar">
                 <!-- Stats Panel -->
                 <div class="stats-panel">
-                    <h2>Statistics</h2>
+                    <h2>Estadísticas</h2>
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-value" id="totalQuakes">0</div>
-                            <div class="stat-label">Total Events</div>
+                            <div class="stat-label">Eventos Totales</div>
                         </div>
                         <div class="stat-card highlight">
                             <div class="stat-value" id="maxMagnitude">0.0</div>
-                            <div class="stat-label">Max Magnitude</div>
+                            <div class="stat-label">Magnitud Máx.</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" id="avgDepth">0</div>
-                            <div class="stat-label">Avg Depth (km)</div>
+                            <div class="stat-label">Prof. Media (km)</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" id="recentCount">0</div>
-                            <div class="stat-label">Last 6 Hours</div>
+                            <div class="stat-label">Últimas 6 Horas</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Recent Earthquakes -->
                 <div class="recent-panel">
-                    <h2>Recent Earthquakes</h2>
+                    <h2>Terremotos Recientes</h2>
                     <div id="earthquakeList" class="earthquake-list">
                         <div class="loading-state">
                             <div class="spinner"></div>
-                            <span>Loading earthquake data...</span>
+                            <span>Cargando datos sísmicos...</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Magnitude Chart -->
                 <div class="chart-panel">
-                    <h2>Magnitude Distribution</h2>
+                    <h2>Distribución por Magnitud</h2>
                     <div id="magnitudeChart" class="chart-container">
                         <div class="chart-bars"></div>
                     </div>
@@ -154,27 +154,27 @@
                 <button class="modal-close" id="closeModal">&times;</button>
                 <div class="modal-header">
                     <div class="modal-magnitude" id="modalMagnitude">0.0</div>
-                    <div class="modal-title" id="modalTitle">Earthquake Details</div>
+                    <div class="modal-title" id="modalTitle">Detalles del Terremoto</div>
                 </div>
                 <div class="modal-body">
                     <div class="detail-row">
-                        <span class="detail-label">Time</span>
+                        <span class="detail-label">Hora</span>
                         <span class="detail-value" id="modalTime">--</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Depth</span>
+                        <span class="detail-label">Profundidad</span>
                         <span class="detail-value" id="modalDepth">--</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Location</span>
+                        <span class="detail-label">Ubicación</span>
                         <span class="detail-value" id="modalLocation">--</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Coordinates</span>
+                        <span class="detail-label">Coordenadas</span>
                         <span class="detail-value" id="modalCoords">--</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Status</span>
+                        <span class="detail-label">Estado</span>
                         <span class="detail-value" id="modalStatus">--</span>
                     </div>
                 </div>
@@ -182,14 +182,14 @@
                 <!-- Station Detection Radial Map -->
                 <div class="station-section" id="stationSection">
                     <div class="station-header">
-                        <h4>Station Detections</h4>
+                        <h4>Detecciones de Estaciones</h4>
                         <span class="station-count" id="stationCount">Loading...</span>
                     </div>
                     <div class="radial-map-container">
                         <div class="radial-map" id="radialMap">
                             <div class="radial-center">
                                 <div class="epicenter-dot"></div>
-                                <span class="epicenter-label">Epicenter</span>
+                                <span class="epicenter-label">Epicentro</span>
                             </div>
                             <div class="radial-rings">
                                 <div class="radial-ring" data-distance="0.5"></div>
@@ -199,14 +199,14 @@
                             <div class="stations-container" id="stationsContainer"></div>
                         </div>
                         <div class="radial-legend">
-                            <div class="legend-item"><span class="wave-dot p-wave"></span> P-wave</div>
-                            <div class="legend-item"><span class="wave-dot s-wave"></span> S-wave</div>
+                            <div class="legend-item"><span class="wave-dot p-wave"></span> Onda P</div>
+                            <div class="legend-item"><span class="wave-dot s-wave"></span> Onda S</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-actions">
-                    <a id="modalLink" href="#" target="_blank" class="modal-link">View on IGN →</a>
+                    <a id="modalLink" href="#" target="_blank" class="modal-link">Ver en IGN →</a>
                     <div class="share-section">
                         <button class="share-btn" id="shareBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -216,7 +216,7 @@
                                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
                                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                             </svg>
-                            Share
+                            Compartir
                         </button>
                         <div class="share-dropdown hidden" id="shareDropdown">
                             <button class="share-option" data-share="copy">
@@ -224,7 +224,7 @@
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                                 </svg>
-                                Copy Link
+                                Copiar Enlace
                             </button>
                             <button class="share-option" data-share="twitter">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -261,11 +261,11 @@
             <div class="footer-content">
                 <div class="attribution">
                     Data: <a href="https://www.ign.es/web/ign/portal/sis-catalogo-terremotos" target="_blank" rel="noopener">Instituto Geográfico Nacional (IGN)</a> · 
-                    Licensed under <a href="https://www.ign.es/web/ign/portal/politica-datos" target="_blank" rel="noopener">CC-BY 4.0</a>
+                    Licencia <a href="https://www.ign.es/web/ign/portal/politica-datos" target="_blank" rel="noopener">CC-BY 4.0</a>
                 </div>
                 <div class="disclaimer">
-                    This is an independent informational resource for general public benefit. Not affiliated with or endorsed by IGN. 
-                    Data may be delayed or incomplete. Do not use for emergency decisions.
+                    Este es un recurso informativo independiente para beneficio público. No está afiliado ni respaldado por el IGN. 
+                    Los datos pueden estar retrasados o incompletos. No usar para decisiones de emergencia.
                 </div>
             </div>
         </footer>
