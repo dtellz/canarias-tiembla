@@ -20,11 +20,11 @@ A visually stunning, real-time earthquake monitoring dashboard for the Canary Is
 - **CSS3** - Modern styling with CSS variables, animations, and gradients
 - **Vanilla JavaScript** - No frameworks required
 - **Leaflet.js** - Interactive mapping
-- **IGN Spain GeoRSS Feed** - Real-time seismic data from Instituto Geográfico Nacional
+- **IGN Spain Canary Islands Data** - Real-time seismic data from Instituto Geográfico Nacional (all magnitudes)
 
 ## No Server Required
 
-This is a completely client-side application. Simply open `index.html` in a web browser to run it. The app fetches data directly from the IGN Spain public GeoRSS feed.
+This is a completely client-side application. Simply open `index.html` in a web browser to run it. The app fetches data directly from the IGN Spain Canary Islands earthquake page.
 
 ## Quick Start
 
@@ -49,7 +49,7 @@ php -S localhost:8000
 
 Earthquake data is provided by the [Instituto Geográfico Nacional (IGN) Spain](https://www.ign.es/web/ign/portal/sis-catalogo-terremotos). The IGN operates the Spanish National Seismic Network and provides real-time monitoring of seismic activity in Spain and the Canary Islands.
 
-The GeoRSS feed provides the last 10 days of earthquakes, filtered for the Canary Islands region:
+The IGN Canary Islands page provides the last 10 days of earthquakes with all magnitudes (including micro-earthquakes):
 
 - Latitude: 27.0°N to 29.5°N
 - Longitude: 19.0°W to 13.0°W
