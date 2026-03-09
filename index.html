@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canary Islands Earthquake Monitor</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <div class="pulse-ring"></div>
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <div class="title-group">
+                    <h1>Canary Islands</h1>
+                    <span class="subtitle">Earthquake Monitor</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <span class="status-dot live"></span>
+                    <span class="status-text">LIVE</span>
+                </div>
+                <div class="last-update">
+                    <span class="update-label">Last update:</span>
+                    <span id="lastUpdate" class="update-time">--:--:--</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Map Container -->
+            <div class="map-container">
+                <div id="map"></div>
+                <div class="map-overlay top-left">
+                    <div class="legend">
+                        <h3>Magnitude</h3>
+                        <div class="legend-items">
+                            <div class="legend-item">
+                                <span class="legend-dot mag-1"></span>
+                                <span>&lt; 2.0</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot mag-2"></span>
+                                <span>2.0 - 3.0</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot mag-3"></span>
+                                <span>3.0 - 4.0</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot mag-4"></span>
+                                <span>4.0 - 5.0</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot mag-5"></span>
+                                <span>&gt; 5.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="map-overlay bottom-right">
+                    <div class="time-filter">
+                        <button class="filter-btn active" data-days="1">24h</button>
+                        <button class="filter-btn" data-days="7">7 days</button>
+                        <button class="filter-btn" data-days="30">30 days</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Stats Panel -->
+                <div class="stats-panel">
+                    <h2>Statistics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalQuakes">0</div>
+                            <div class="stat-label">Total Events</div>
+                        </div>
+                        <div class="stat-card highlight">
+                            <div class="stat-value" id="maxMagnitude">0.0</div>
+                            <div class="stat-label">Max Magnitude</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avgDepth">0</div>
+                            <div class="stat-label">Avg Depth (km)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="recentCount">0</div>
+                            <div class="stat-label">Last 6 Hours</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Earthquakes -->
+                <div class="recent-panel">
+                    <h2>Recent Earthquakes</h2>
+                    <div id="earthquakeList" class="earthquake-list">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <span>Loading earthquake data...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Magnitude Chart -->
+                <div class="chart-panel">
+                    <h2>Magnitude Distribution</h2>
+                    <div id="magnitudeChart" class="chart-container">
+                        <div class="chart-bars"></div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Selected Earthquake Detail Modal -->
+        <div id="detailModal" class="modal hidden">
+            <div class="modal-content">
+                <button class="modal-close" id="closeModal">&times;</button>
+                <div class="modal-header">
+                    <div class="modal-magnitude" id="modalMagnitude">0.0</div>
+                    <div class="modal-title" id="modalTitle">Earthquake Details</div>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-row">
+                        <span class="detail-label">Time</span>
+                        <span class="detail-value" id="modalTime">--</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Depth</span>
+                        <span class="detail-value" id="modalDepth">--</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value" id="modalLocation">--</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Coordinates</span>
+                        <span class="detail-value" id="modalCoords">--</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value" id="modalStatus">--</span>
+                    </div>
+                </div>
+                <a id="modalLink" href="#" target="_blank" class="modal-link">View on USGS →</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
