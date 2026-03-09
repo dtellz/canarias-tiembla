@@ -295,16 +295,12 @@
 
             marker.addTo(map);
             earthquakeMarkers.push(marker);
-
-            // Add entrance animation delay
-            setTimeout(() => {
-                const el = marker.getElement();
-                if (el) {
-                    el.style.opacity = '1';
-                    el.style.transform = 'scale(1)';
-                }
-            }, index * 50);
         });
+
+        // Force map to invalidate size and redraw after markers are added
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
     }
 
     // Create custom earthquake marker
