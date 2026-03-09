@@ -68,7 +68,7 @@
             center: CONFIG.center,
             zoom: CONFIG.defaultZoom,
             minZoom: 7,
-            maxZoom: 12,
+            maxZoom: 18,
             zoomControl: false
         });
 
