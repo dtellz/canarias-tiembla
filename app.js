@@ -118,6 +118,15 @@
                 closeModal();
             }
         });
+
+        // Legend toggle (collapsible)
+        const legendToggle = document.getElementById('legendToggle');
+        const magnitudeLegend = document.getElementById('magnitudeLegend');
+        if (legendToggle && magnitudeLegend) {
+            legendToggle.addEventListener('click', () => {
+                magnitudeLegend.classList.toggle('collapsed');
+            });
+        }
     }
 
     // Fetch earthquake data from IGN Spain Canary Islands page

@@ -44,8 +44,15 @@
             <div class="map-container">
                 <div id="map"></div>
                 <div class="map-overlay top-left">
-                    <div class="legend">
-                        <h3>Magnitude</h3>
+                    <div class="legend" id="magnitudeLegend">
+                        <div class="legend-header" id="legendToggle">
+                            <h3>Magnitude</h3>
+                            <button class="legend-toggle" aria-label="Toggle legend">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                            </button>
+                        </div>
                         <div class="legend-items">
                             <div class="legend-item">
                                 <span class="legend-dot mag-1"></span>
