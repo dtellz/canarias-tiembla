@@ -1,7 +1,7 @@
 # Canary Islands Earthquake Monitor & Eruption Prediction
 
 <p align="center">
-  <img src="./rd.png" width="400">
+  <img src="./rd.png">
 </p>
 
 A real-time earthquake monitoring dashboard for the Canary Islands with an experimental machine learning system for volcanic eruption prediction.
