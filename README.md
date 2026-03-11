@@ -1,9 +1,12 @@
-# Canary Islands Earthquake Monitor
+# Canary Islands Earthquake Monitor & Eruption Prediction
 
-A visually stunning, real-time earthquake monitoring dashboard for the Canary Islands. This application displays live seismic data from the Instituto Geográfico Nacional (IGN) Spain with beautiful visualizations and interactive features.
+A real-time earthquake monitoring dashboard for the Canary Islands with an experimental machine learning system for volcanic eruption prediction.
+
+**Live Demo**: https://dtellz.github.io/canarias-tiembla/
 
 ## Features
 
+### Real-Time Monitoring Dashboard
 - **Live Data**: Fetches real-time earthquake data from IGN Spain every 2 minutes
 - **Interactive Map**: Dark-themed map focused on the Canary Islands with animated earthquake markers
 - **Magnitude Visualization**: Color-coded markers and size scaling based on earthquake magnitude
@@ -11,75 +14,84 @@ A visually stunning, real-time earthquake monitoring dashboard for the Canary Is
 - **Time Filtering**: View earthquakes from the last 24 hours, 7 days, or 30 days
 - **Earthquake List**: Scrollable list of recent earthquakes with quick details
 - **Magnitude Distribution Chart**: Visual breakdown of earthquake magnitudes
-- **Detail Modal**: Click any earthquake for comprehensive information
 - **Responsive Design**: Works on desktop and mobile devices
 
-## Tech Stack
+### Eruption Prediction Model (Experimental)
+- **Temporal Convolutional Network (TCN)**: Deep learning model for time-series analysis
+- **Multi-modal Data**: Combines seismicity, ground deformation, and gas emissions
+- **Multiple Prediction Windows**: 7, 30, and 90-day eruption forecasts
+- **Apple Silicon Optimized**: Runs on M-series Macs using PyTorch MPS backend
+- **XGBoost Baseline**: Gradient boosting model for comparison
 
-- **HTML5** - Semantic markup
-- **CSS3** - Modern styling with CSS variables, animations, and gradients
-- **Vanilla JavaScript** - No frameworks required
-- **Leaflet.js** - Interactive mapping
-- **IGN Spain Canary Islands Data** - Real-time seismic data from Instituto Geográfico Nacional (all magnitudes)
+## Project Structure
 
-## No Server Required
-
-This is a completely client-side application. Simply open `index.html` in a web browser to run it. The app fetches data directly from the IGN Spain Canary Islands earthquake page.
+```
+├── index.html              # Real-time monitoring dashboard
+├── app.js                  # Dashboard JavaScript
+├── styles.css              # Dashboard styling
+├── scripts/                # Data pipeline scripts
+│   ├── download_seismic.py    # Fetch IGN earthquake data
+│   ├── download_eruptions.py  # Historical eruption records
+│   ├── process_seismic.py     # Feature engineering
+│   ├── build_dataset.py       # Create ML training data
+│   └── predict.py             # Run inference
+├── models/                 # ML model implementations
+│   ├── tcn_model.py           # TCN, LSTM, Attention models
+│   └── xgboost_baseline.py    # XGBoost baseline
+├── training/               # Training scripts
+│   ├── train_model.py         # Model training
+│   └── evaluate_model.py      # Evaluation & plots
+└── data/                   # Data directories
+    ├── raw/                   # Raw downloaded data
+    ├── processed/             # Processed datasets
+    └── features/              # Engineered features
+```
 
 ## Quick Start
 
-1. Clone or download this repository
-2. Open `index.html` in your web browser
-3. That's it! The app will automatically fetch and display earthquake data
-
-Alternatively, you can serve it with any static file server:
-
+### Dashboard Only
 ```bash
-# Using Python
+# Open index.html in your browser, or serve locally:
 python -m http.server 8000
-
-# Using Node.js (npx)
-npx serve
-
-# Using PHP
-php -S localhost:8000
 ```
 
-## Data Source
+### ML Pipeline (requires Python 3.12+)
+```bash
+# Setup environment
+python3.12 -m venv volcano-env
+source volcano-env/bin/activate
+pip install -r requirements.txt
 
-Earthquake data is provided by the [Instituto Geográfico Nacional (IGN) Spain](https://www.ign.es/web/ign/portal/sis-catalogo-terremotos). The IGN operates the Spanish National Seismic Network and provides real-time monitoring of seismic activity in Spain and the Canary Islands.
-
-The IGN Canary Islands page provides the last 10 days of earthquakes with all magnitudes (including micro-earthquakes):
-
-- Latitude: 27.0°N to 29.5°N
-- Longitude: 19.0°W to 13.0°W
-
-## Configuration
-
-You can modify the configuration in `app.js`:
-
-```javascript
-const CONFIG = {
-    bounds: {
-        minLat: 27.0,
-        maxLat: 29.5,
-        minLon: -19.0,
-        maxLon: -13.0
-    },
-    center: [28.3, -15.8],
-    defaultZoom: 8,
-    refreshInterval: 120000, // 2 minutes
-    defaultDays: 1
-};
+# Run pipeline
+python scripts/download_eruptions.py
+python scripts/download_seismic.py
+python scripts/process_seismic.py
+python scripts/build_dataset.py
+python training/train_model.py
+python scripts/predict.py
 ```
 
-## Browser Support
+## Tech Stack
 
-- Chrome (recommended)
-- Firefox
-- Safari
-- Edge
+**Dashboard**
+- HTML5, CSS3, Vanilla JavaScript
+- Leaflet.js for interactive mapping
+
+**ML Pipeline**
+- PyTorch (MPS backend for Apple Silicon)
+- XGBoost, scikit-learn
+- pandas, numpy, geopandas
+
+## Data Sources
+
+- **Seismic Data**: [Instituto Geográfico Nacional (IGN)](https://www.ign.es/web/ign/portal/sis-catalogo-terremotos)
+- **Historical Eruptions**: Smithsonian Global Volcanism Program
+- **Gas Emissions**: INVOLCAN (requires data access request)
+
+## ⚠️ Disclaimer
+
+The eruption prediction model is **experimental** and for research purposes only. Outputs must NOT be used for official eruption forecasting. Always consult professional volcanologists and official sources (IGN, INVOLCAN) for volcanic hazard assessments.
 
 ## License
 
-MIT License - Feel free to use and modify as needed.
+MIT License
