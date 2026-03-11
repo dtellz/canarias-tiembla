@@ -11,7 +11,7 @@ A real-time earthquake monitoring dashboard for the Canary Islands with an exper
 - **Interactive Map**: Dark-themed map focused on the Canary Islands with animated earthquake markers
 - **Magnitude Visualization**: Color-coded markers and size scaling based on earthquake magnitude
 - **Statistics Dashboard**: Total events, max magnitude, average depth, and recent activity
-- **Time Filtering**: View earthquakes from the last 24 hours, 7 days, or 30 days
+- **Time Filtering**: View earthquakes from the last 24 hours, 3 days, or 10 days
 - **Earthquake List**: Scrollable list of recent earthquakes with quick details
 - **Magnitude Distribution Chart**: Visual breakdown of earthquake magnitudes
 - **Responsive Design**: Works on desktop and mobile devices
